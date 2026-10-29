@@ -1,49 +1,49 @@
-# Поруч — правила для Claude
+# Poruch — rules for Claude
 
-Каталог українських закладів та івентів (старт — Чикаго). Ідея й план — у [PLAN.md](PLAN.md).
+A directory of Ukrainian businesses and events (starting with Chicago). The idea and plan are in [PLAN.md](PLAN.md).
 
-- `apps/mobile/` — застосунок на Expo (React Native). Окремі правила Expo — в `apps/mobile/AGENTS.md`.
-- `supabase/` — база даних (Supabase): міграції, демо-дані.
-- `docs/ONBOARDING.md` — інструкція для нових учасників.
+- `apps/mobile/` — the Expo (React Native) app. Expo-specific rules are in `apps/mobile/AGENTS.md`.
+- `supabase/` — the Supabase database: migrations and demo data.
+- `docs/ONBOARDING.md` — setup guide for new contributors.
 
-## Хто працює з проєктом
+## Who works on this project
 
-- **Власник — Serg** (`git config user.name` = `Serg`). Керує базою, зливає зміни в `main`.
-- **Учасники-непрограмісти** пишуть код разом з Claude («вайбкодять»).
+- **Owner — Serg** (`git config user.name` = `Serg`). Manages the database and merges changes into `main`.
+- **Non-programmer contributors** who build features together with Claude ("vibe coding").
 
-Пояснюй усе простою українською мовою, без жаргону. Перед ризикованою дією коротко скажи, що робиш і навіщо.
+Talk to people in **simple Ukrainian**, without jargon. Before anything risky, briefly say what you are about to do and why.
 
-## Git — обовʼязково
+## Git — mandatory
 
-1. **Ніколи не коміть і не пуш у `main`.** Виняток: `git config user.name` = `Serg` і він прямо просить закомітити в `main`.
-2. На початку кожної задачі:
+1. **Never commit or push to `main`.** Exception: `git config user.name` is `Serg` and he explicitly asks to commit to `main`.
+2. At the start of every task:
    ```
    git checkout main
    git pull
-   git checkout -b <коротка-назва-латиницею>   # наприклад: event-page, fix-catalog-search
+   git checkout -b <short-latin-name>   # e.g. event-page, fix-catalog-search
    ```
-   Якщо є незбережені зміни — спершу спитай, що з ними робити. Нічого не викидай мовчки.
-3. Коміть невеликими кроками, з поясненням у повідомленні.
-4. Коли людина задоволена результатом: запуш гілку (`git push -u origin <гілка>`) і створи Pull Request (`gh pr create`, якщо є `gh`; інакше дай посилання `https://github.com/SerhiiDer/Poruch/pull/new/<гілка>`). В описі PR — простими словами, що змінилося і як перевірити.
-5. **Заборонено:** `git push --force`, `git reset --hard` на спільних гілках, переписування історії, злиття PR (зливає лише Serg), видалення чужих гілок.
+   If there are uncommitted changes, ask what to do with them first. Never discard anything silently.
+3. Commit in small steps with clear messages.
+4. When the person is happy with the result: push the branch (`git push -u origin <branch>`) and open a Pull Request (`gh pr create` if `gh` is installed; otherwise give the link `https://github.com/SerhiiDer/Poruch/pull/new/<branch>`). Describe in plain words what changed and how to check it.
+5. **Forbidden:** `git push --force`, `git reset --hard` on shared branches, rewriting history, merging PRs (only Serg merges), deleting other people's branches.
 
-## База даних — лише Serg
+## Database — Serg only
 
-- **Не запускай** `supabase db push`, `supabase db query`, `supabase link`, `supabase migration repair` і нічого, що змінює базу.
-- **Не змінюй** файли в `supabase/` і `apps/mobile/src/data/database.types.ts`.
-- Якщо задачі потрібна нова колонка чи таблиця — не роби цього сам. Напиши в описі PR, що треба змінити в базі; Serg зробить.
-- Для Serg: зміни бази робляться через Supabase CLI з кореня проєкту (`npm run db:new`, `npx supabase db push --linked --dry-run`, потім без `--dry-run`, далі `npm run db:types`).
+- **Do not run** `supabase db push`, `supabase db query`, `supabase link`, `supabase migration repair`, or anything else that changes the database.
+- **Do not edit** files in `supabase/` or `apps/mobile/src/data/database.types.ts`.
+- If a task needs a new column or table, do not do it yourself. Describe the needed database change in the PR description; Serg will apply it.
+- For Serg: database changes go through the Supabase CLI from the repo root (`npm run db:new`, `npx supabase db push --linked --dry-run`, then without `--dry-run`, then `npm run db:types`).
 
-## Секрети
+## Secrets
 
-- У застосунку — лише **publishable key** (`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` у `apps/mobile/.env`). Він публічний, дані захищають правила RLS.
-- **Ніколи** не додавай у код, `.env` чи коміти secret / service_role key, паролі, токени.
+- The app only uses the **publishable key** (`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `apps/mobile/.env`). It is public; the data is protected by RLS policies.
+- **Never** put a secret / service_role key, passwords, or tokens in code, `.env`, or commits.
 
-## Код
+## Code
 
-- Запуск: `cd apps/mobile && npx expo start` (на телефоні — Expo Go).
-- Перед кожним комітом у `apps/mobile/`: `npx tsc --noEmit` і `npx expo lint` — без помилок.
-- Нові бібліотеки — лише через `npx expo install <пакет>`, і лише ті, що працюють в **Expo Go** (без власного нативного коду). Якщо потрібна інша — спитай Serg.
-- Не видаляй і не перейменовуй файли без пояснення людині.
-- Коментарі в коді — короткі, українською.
-- Тексти в застосунку — українською.
+- Run the app: `cd apps/mobile && npx expo start` (on the phone: Expo Go).
+- Before every commit, in `apps/mobile/`: `npx tsc --noEmit` and `npx expo lint` must pass with no errors.
+- Add libraries only with `npx expo install <package>`, and only ones that work in **Expo Go** (no custom native code). If something else is needed, ask Serg.
+- Do not delete or rename files without explaining it to the person.
+- Code comments: short, in Ukrainian.
+- All text shown in the app: Ukrainian.
