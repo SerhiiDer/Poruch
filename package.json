@@ -1,0 +1,12 @@
+{
+  "name": "poruch",
+  "private": true,
+  "scripts": {
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked --schema public > apps/mobile/src/data/database.types.ts",
+    "db:new": "supabase migration new"
+  },
+  "devDependencies": {
+    "supabase": "^2.122.0"
+  }
+}

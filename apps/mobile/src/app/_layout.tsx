@@ -1,8 +1,7 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 
-import AppTabs from '@/components/app-tabs';
 import { CityPickerContent } from '@/components/city-picker';
 import { Screen } from '@/components/ui';
 import { Colors } from '@/constants/theme';
@@ -10,10 +9,13 @@ import { CityProvider, useCity } from '@/hooks/use-city';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DirectoryProvider } from '@/hooks/use-directory';
 
-/** Поки місто не вибране — показуємо екран «Звідки ви?» замість вкладок */
-function Main({ background }: { background: string }) {
+/**
+ * Поки місто не вибране — показуємо екран «Звідки ви?».
+ * Далі — стек: вкладки знизу, а сторінка закладу відкривається поверх них.
+ */
+function Main({ colors }: { colors: (typeof Colors)['light' | 'dark'] }) {
   const { loading, city } = useCity();
-  if (loading) return <View style={{ flex: 1, backgroundColor: background }} />;
+  if (loading) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
   if (!city) {
     return (
       <Screen>
@@ -21,7 +23,19 @@ function Main({ background }: { background: string }) {
       </Screen>
     );
   }
-  return <AppTabs />;
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.accent,
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: colors.background },
+      }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="business/[id]" options={{ title: '' }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
@@ -47,7 +61,7 @@ export default function RootLayout() {
       <CityProvider>
         <DirectoryProvider>
           <StatusBar style="auto" />
-          <Main background={c.background} />
+          <Main colors={c} />
         </DirectoryProvider>
       </CityProvider>
     </ThemeProvider>

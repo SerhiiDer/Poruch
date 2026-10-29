@@ -21,6 +21,10 @@ export const Colors = {
     highlight: '#FFC83D',
     highlightSoft: '#FFF4D6',
     highlightText: '#3A2A00',
+    success: '#0E8F6E',
+    successSoft: '#DDF5EC',
+    danger: '#C93838',
+    dangerSoft: '#FBE4E4',
     heroGradient: 'linear-gradient(135deg, #1F4FD1 0%, #3C7BFF 100%)',
   },
   dark: {
@@ -36,6 +40,10 @@ export const Colors = {
     highlight: '#FFC83D',
     highlightSoft: '#3A3016',
     highlightText: '#2A1E00',
+    success: '#4FD1A5',
+    successSoft: '#123328',
+    danger: '#FF8A8A',
+    dangerSoft: '#3A1A1E',
     heroGradient: 'linear-gradient(135deg, #1A3BA8 0%, #2F5FE0 100%)',
   },
 } as const;

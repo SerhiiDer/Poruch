@@ -147,10 +147,14 @@ export default function HomeScreen() {
             {featured ? (
               <View style={styles.block}>
                 <SectionHeader title="Рекомендуємо" />
-                <View
-                  style={[
+                <Pressable
+                  onPress={() =>
+                    router.push({ pathname: '/business/[id]', params: { id: featured.id } })
+                  }
+                  style={({ pressed }) => [
                     styles.featured,
                     { backgroundColor: theme.highlightSoft, borderColor: theme.highlight },
+                    pressed && styles.pressed,
                   ]}>
                   <Avatar
                     name={featured.name}
@@ -164,7 +168,8 @@ export default function HomeScreen() {
                       {featured.description}
                     </ThemedText>
                   </View>
-                </View>
+                  <Icon name="chevron" size={14} color={theme.textSecondary} />
+                </Pressable>
               </View>
             ) : null}
 

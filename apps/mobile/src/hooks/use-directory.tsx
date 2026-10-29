@@ -30,7 +30,9 @@ async function load(cityId: string) {
     supabase.from('categories').select('id, name, emoji, tint').order('sort'),
     supabase
       .from('businesses')
-      .select('id, name, category_id, locality, address, description, phone, instagram, website, featured, created_at')
+      .select(
+        'id, name, category_id, locality, address, description, about, hours, phone, instagram, website, featured, created_at',
+      )
       .eq('city_id', cityId)
       .order('name'),
     supabase
@@ -56,6 +58,8 @@ async function load(cityId: string) {
         locality: b.locality,
         address: b.address,
         description: b.description,
+        about: b.about ?? undefined,
+        hours: b.hours ?? undefined,
         phone: b.phone ?? undefined,
         instagram: b.instagram ?? undefined,
         website: b.website ?? undefined,

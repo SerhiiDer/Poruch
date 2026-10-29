@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
+import type { Database } from '@/data/database.types';
+
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -17,7 +19,8 @@ if (!url || !key) {
 // Коли веб-сторінка рендериться на сервері, сховища ще немає.
 const hasStorage = typeof window !== 'undefined';
 
-export const supabase = createClient(url, key, {
+// Типи таблиць генеруються з бази: `npm run db:types` у корені проєкту.
+export const supabase = createClient<Database>(url, key, {
   auth: {
     storage: hasStorage ? AsyncStorage : undefined,
     persistSession: hasStorage,

@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
@@ -7,6 +8,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import type { Business } from '@/data/types';
 import { useDirectory } from '@/hooks/use-directory';
 import { useTheme } from '@/hooks/use-theme';
+import { callBusiness, openInstagram, openMaps } from '@/lib/links';
 
 function ActionButton({
   icon,
@@ -42,15 +44,15 @@ export function BusinessCard({ item }: { item: Business }) {
   const { categories } = useDirectory();
   const category = categories.find((c) => c.id === item.categoryId);
 
-  // Поки що відкриваємо посилання напряму. На кроці 3 тут з'явиться підрахунок кліків.
-  const openMaps = () =>
-    Linking.openURL(
-      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.name} ${item.address}`)}`,
-    );
-
+  // Натиск на картку відкриває сторінку закладу. Кнопки всередині працюють окремо.
   return (
-    <View
-      style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+    <Pressable
+      onPress={() => router.push({ pathname: '/business/[id]', params: { id: item.id } })}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+        pressed && styles.cardPressed,
+      ]}>
       <View style={styles.top}>
         <Avatar name={item.name} tint={category?.tint ?? '#E4E7EC'} />
         <View style={styles.info}>
@@ -76,24 +78,21 @@ export function BusinessCard({ item }: { item: Business }) {
             icon="call"
             label="Подзвонити"
             primary
-            onPress={() => Linking.openURL(`tel:${item.phone}`)}
+            onPress={() => callBusiness(item)}
           />
         ) : null}
-        <ActionButton icon="directions" label="Маршрут" onPress={openMaps} />
+        <ActionButton icon="directions" label="Маршрут" onPress={() => openMaps(item)} />
         {item.instagram ? (
-          <ActionButton
-            icon="instagram"
-            label="Instagram"
-            onPress={() => Linking.openURL(`https://instagram.com/${item.instagram}`)}
-          />
+          <ActionButton icon="instagram" label="Instagram" onPress={() => openInstagram(item)} />
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
+  cardPressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
   card: {
     marginHorizontal: Spacing.three,
     borderRadius: Radius.lg,

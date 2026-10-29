@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { CityPicker } from '@/components/city-picker';
-import { Icon, type IconName } from '@/components/icon';
+import { Icon } from '@/components/icon';
+import { ListGroup, ListRow } from '@/components/list-group';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
 import { Screen, SectionHeader } from '@/components/ui';
@@ -12,56 +13,6 @@ import { useTheme } from '@/hooks/use-theme';
 
 // Поки що кнопки показують «Скоро». Справжні форми з'являться після підключення бази.
 const soon = (what: string) => Alert.alert('Скоро', `${what} з'явиться в наступних версіях.`);
-
-function Row({
-  icon,
-  tint,
-  label,
-  value,
-  right,
-  onPress,
-  last,
-}: {
-  icon: IconName;
-  tint: string;
-  label: string;
-  value?: string;
-  right?: React.ReactNode;
-  onPress?: () => void;
-  last?: boolean;
-}) {
-  const theme = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      style={({ pressed }) => [
-        styles.row,
-        !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
-        pressed && { backgroundColor: theme.backgroundSelected },
-      ]}>
-      <View style={[styles.rowIcon, { backgroundColor: tint }]}>
-        <Icon name={icon} size={16} color="#FFFFFF" />
-      </View>
-      <ThemedText style={styles.rowLabel}>{label}</ThemedText>
-      {value ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          {value}
-        </ThemedText>
-      ) : null}
-      {right ?? (onPress ? <Icon name="chevron" size={14} color={theme.textSecondary} /> : null)}
-    </Pressable>
-  );
-}
-
-function Group({ children }: { children: React.ReactNode }) {
-  const theme = useTheme();
-  return (
-    <View style={[styles.group, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
-      {children}
-    </View>
-  );
-}
 
 export default function MeScreen() {
   const theme = useTheme();
@@ -114,41 +65,41 @@ export default function MeScreen() {
           </View>
 
           {/* Внесок громади */}
-          <Group>
-            <Row
+          <ListGroup>
+            <ListRow
               icon="calendar"
               tint="#1F4FD1"
               label="Запропонувати івент"
               onPress={() => soon('Форма для івентів')}
             />
-            <Row
+            <ListRow
               icon="mail"
               tint="#0E8F6E"
               label="Написати нам"
               onPress={() => soon('Зворотний зв’язок')}
               last
             />
-          </Group>
+          </ListGroup>
 
           {/* Налаштування */}
           <View style={styles.block}>
             <SectionHeader title="Налаштування" />
-            <Group>
-              <Row
+            <ListGroup>
+              <ListRow
                 icon="pin"
                 tint="#E5484D"
                 label="Місто"
                 value={city?.name}
                 onPress={() => setPickerOpen(true)}
               />
-              <Row
+              <ListRow
                 icon="globe"
                 tint="#6A3FD1"
                 label="Мова"
                 value="Українська"
                 onPress={() => soon('Англійська версія')}
               />
-              <Row
+              <ListRow
                 icon="bell"
                 tint="#F2A007"
                 label="Нові івенти"
@@ -161,11 +112,11 @@ export default function MeScreen() {
                 }
                 last
               />
-            </Group>
+            </ListGroup>
           </View>
 
-          <Group>
-            <Row
+          <ListGroup>
+            <ListRow
               icon="info"
               tint="#6B6F80"
               label="Про застосунок"
@@ -178,7 +129,7 @@ export default function MeScreen() {
               }
               last
             />
-          </Group>
+          </ListGroup>
         </View>
       </ScrollView>
       <CityPicker visible={pickerOpen} onClose={() => setPickerOpen(false)} />
@@ -227,30 +178,5 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     paddingVertical: Spacing.two + Spacing.one,
     paddingHorizontal: Spacing.four,
-  },
-  group: {
-    marginHorizontal: Spacing.three,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.three - Spacing.one,
-    minHeight: 54,
-  },
-  rowIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rowLabel: {
-    flex: 1,
-    fontSize: 16,
   },
 });
