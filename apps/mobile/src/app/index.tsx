@@ -4,12 +4,15 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BusinessCard } from '@/components/business-card';
+import { CityPicker } from '@/components/city-picker';
 import { EventFeatureCard, EventRow } from '@/components/event-card';
+import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { Avatar, Badge, SearchBar, SectionHeader } from '@/components/ui';
+import { Avatar, Badge, DataStatus, SearchBar, SectionHeader } from '@/components/ui';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
-import { businesses, categories, events } from '@/data/mock';
+import { useCity } from '@/hooks/use-city';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useDirectory } from '@/hooks/use-directory';
 import { useTheme } from '@/hooks/use-theme';
 import { isWithinDays } from '@/lib/dates';
 
@@ -17,15 +20,13 @@ export default function HomeScreen() {
   const theme = useTheme();
   const scheme = useColorScheme();
   const [query, setQuery] = useState('');
+  const { city } = useCity();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { categories, businesses, events, loading, error, reload } = useDirectory();
 
   const q = query.trim().toLowerCase();
-  const weekEvents = useMemo(
-    () =>
-      events
-        .filter((e) => isWithinDays(e.startsAt, 7))
-        .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
-    [],
-  );
+  // Івенти з бази вже відсортовані за датою.
+  const weekEvents = useMemo(() => events.filter((e) => isWithinDays(e.startsAt, 7)), [events]);
   const featured = businesses.find((b) => b.featured);
   const newest = businesses.filter((b) => b.isNew);
 
@@ -36,13 +37,16 @@ export default function HomeScreen() {
         (b) =>
           b.name.toLowerCase().includes(q) ||
           b.description.toLowerCase().includes(q) ||
-          b.city.toLowerCase().includes(q),
+          b.locality.toLowerCase().includes(q),
       ),
       events: events.filter(
         (e) => e.title.toLowerCase().includes(q) || e.place.toLowerCase().includes(q),
       ),
     };
-  }, [q]);
+  }, [q, businesses, events]);
+
+  // Поки немає жодних даних — показуємо завантаження або помилку замість секцій.
+  const noData = categories.length === 0;
 
   return (
     <View style={[styles.flex, { backgroundColor: theme.background }]}>
@@ -52,7 +56,14 @@ export default function HomeScreen() {
         {/* Синя «шапка» з привітанням і пошуком */}
         <View style={[styles.hero, { experimental_backgroundImage: theme.heroGradient }]}>
           <SafeAreaView edges={['top']} style={styles.heroInner}>
-            <ThemedText style={styles.heroKicker}>🇺🇦 Чикаго</ThemedText>
+            <Pressable
+              onPress={() => setPickerOpen(true)}
+              hitSlop={10}
+              accessibilityLabel="Змінити місто"
+              style={({ pressed }) => [styles.cityButton, pressed && { opacity: 0.6 }]}>
+              <ThemedText style={styles.heroKicker}>🇺🇦 {city?.name ?? 'Місто'}</ThemedText>
+              <Icon name="chevronDown" size={12} color="#FFC83D" />
+            </Pressable>
             <ThemedText style={styles.heroTitle}>Привіт! Що шукаємо сьогодні?</ThemedText>
             <SearchBar
               value={query}
@@ -63,7 +74,9 @@ export default function HomeScreen() {
           </SafeAreaView>
         </View>
 
-        {found ? (
+        {noData || error ? (
+          <DataStatus loading={loading} error={error} onRetry={reload} />
+        ) : found ? (
           <View style={styles.sections}>
             <SectionHeader title={`Бізнеси · ${found.businesses.length}`} />
             {found.businesses.map((b) => (
@@ -82,21 +95,23 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.sections}>
             {/* Цього тижня */}
-            <View style={styles.block}>
-              <SectionHeader
-                title="Цього тижня"
-                actionLabel="Усі →"
-                onAction={() => router.navigate('/events')}
-              />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.carousel}>
-                {weekEvents.map((e, i) => (
-                  <EventFeatureCard key={e.id} item={e} index={i} />
-                ))}
-              </ScrollView>
-            </View>
+            {weekEvents.length > 0 ? (
+              <View style={styles.block}>
+                <SectionHeader
+                  title="Цього тижня"
+                  actionLabel="Усі →"
+                  onAction={() => router.navigate('/events')}
+                />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.carousel}>
+                  {weekEvents.map((e, i) => (
+                    <EventFeatureCard key={e.id} item={e} index={i} />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
 
             {/* Категорії */}
             <View style={styles.block}>
@@ -154,15 +169,18 @@ export default function HomeScreen() {
             ) : null}
 
             {/* Нове в каталозі */}
-            <View style={styles.block}>
-              <SectionHeader title="Нове в каталозі" />
-              {newest.map((b) => (
-                <BusinessCard key={b.id} item={b} />
-              ))}
-            </View>
+            {newest.length > 0 ? (
+              <View style={styles.block}>
+                <SectionHeader title="Нове в каталозі" />
+                {newest.map((b) => (
+                  <BusinessCard key={b.id} item={b} />
+                ))}
+              </View>
+            ) : null}
           </View>
         )}
       </ScrollView>
+      <CityPicker visible={pickerOpen} onClose={() => setPickerOpen(false)} />
     </View>
   );
 }
@@ -179,6 +197,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
     paddingBottom: Spacing.four,
     gap: Spacing.two,
+  },
+  cityButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: Spacing.one,
   },
   heroKicker: {
     color: '#FFC83D',

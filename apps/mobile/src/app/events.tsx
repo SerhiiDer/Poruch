@@ -4,9 +4,11 @@ import { ScrollView, SectionList, StyleSheet, View } from 'react-native';
 import { EventRow } from '@/components/event-card';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
-import { Chip, Screen } from '@/components/ui';
+import { Chip, DataStatus, Screen } from '@/components/ui';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { events, type EventItem } from '@/data/mock';
+import type { EventItem } from '@/data/types';
+import { useCity } from '@/hooks/use-city';
+import { useDirectory } from '@/hooks/use-directory';
 import { dayGroupLabel, isThisWeekend, isToday } from '@/lib/dates';
 
 type Filter = 'all' | 'today' | 'weekend' | 'free' | 'kids' | 'music';
@@ -22,18 +24,20 @@ const filters: { id: Filter; label: string; test: (e: EventItem) => boolean }[] 
 
 export default function EventsScreen() {
   const [filter, setFilter] = useState<Filter>('all');
+  const { city } = useCity();
+  const { events, loading, error, reload } = useDirectory();
 
   // Групуємо івенти по днях: «Сьогодні», «Завтра», «сб, 1 листопада»…
+  // З бази вони приходять уже відсортовані за датою.
   const sections = useMemo(() => {
     const test = filters.find((f) => f.id === filter)!.test;
-    const sorted = events.filter(test).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     const groups = new Map<string, EventItem[]>();
-    for (const e of sorted) {
+    for (const e of events.filter(test)) {
       const key = dayGroupLabel(e.startsAt);
       groups.set(key, [...(groups.get(key) ?? []), e]);
     }
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
-  }, [filter]);
+  }, [filter, events]);
 
   return (
     <Screen>
@@ -50,7 +54,10 @@ export default function EventsScreen() {
         ItemSeparatorComponent={() => <View style={{ height: Spacing.two + Spacing.one }} />}
         ListHeaderComponent={
           <View>
-            <ScreenHeader title="Івенти" subtitle="Що відбувається в українському Чикаго" />
+            <ScreenHeader
+              title="Івенти"
+              subtitle={city ? `Що відбувається в громаді · ${city.area}` : undefined}
+            />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -67,12 +74,16 @@ export default function EventsScreen() {
           </View>
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <ThemedText style={styles.emptyEmoji}>🗓️</ThemedText>
-            <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-              Поки що нічого. Загляньте пізніше або змініть фільтр.
-            </ThemedText>
-          </View>
+          loading || error ? (
+            <DataStatus loading={loading} error={error} onRetry={reload} />
+          ) : (
+            <View style={styles.empty}>
+              <ThemedText style={styles.emptyEmoji}>🗓️</ThemedText>
+              <ThemedText themeColor="textSecondary" style={styles.emptyText}>
+                Поки що нічого. Загляньте пізніше або змініть фільтр.
+              </ThemedText>
+            </View>
+          )
         }
         contentContainerStyle={{ paddingBottom: BottomTabInset + Spacing.five }}
       />

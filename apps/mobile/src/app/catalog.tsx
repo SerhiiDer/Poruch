@@ -5,11 +5,14 @@ import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { BusinessCard } from '@/components/business-card';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
-import { Chip, Screen, SearchBar } from '@/components/ui';
+import { Chip, DataStatus, Screen, SearchBar } from '@/components/ui';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { businesses, categories } from '@/data/mock';
+import { useCity } from '@/hooks/use-city';
+import { useDirectory } from '@/hooks/use-directory';
 
 export default function CatalogScreen() {
+  const { city } = useCity();
+  const { categories, businesses, loading, error, reload } = useDirectory();
   // Категорію можна передати з головної: /catalog?category=food
   const params = useLocalSearchParams<{ category?: string }>();
   const [query, setQuery] = useState('');
@@ -30,9 +33,9 @@ export default function CatalogScreen() {
         (q === '' ||
           b.name.toLowerCase().includes(q) ||
           b.description.toLowerCase().includes(q) ||
-          b.city.toLowerCase().includes(q)),
+          b.locality.toLowerCase().includes(q)),
     );
-  }, [query, categoryId]);
+  }, [query, categoryId, businesses]);
 
   return (
     <Screen>
@@ -45,7 +48,10 @@ export default function CatalogScreen() {
         contentContainerStyle={{ paddingBottom: BottomTabInset + Spacing.five }}
         ListHeaderComponent={
           <View style={styles.header}>
-            <ScreenHeader title="Каталог" subtitle="Українські бізнеси Чикаго і передмість" />
+            <ScreenHeader
+              title="Каталог"
+              subtitle={city ? `Українські бізнеси · ${city.area}` : undefined}
+            />
             <SearchBar
               value={query}
               onChangeText={setQuery}
@@ -72,12 +78,16 @@ export default function CatalogScreen() {
           </View>
         }
         ListEmptyComponent={
+          loading || error ? (
+            <DataStatus loading={loading} error={error} onRetry={reload} />
+          ) : (
           <View style={styles.empty}>
             <ThemedText style={styles.emptyEmoji}>🔎</ThemedText>
             <ThemedText themeColor="textSecondary" style={styles.emptyText}>
               Нічого не знайшли. Знаєте український бізнес, якого тут немає? Додайте його у вкладці «Я».
             </ThemedText>
           </View>
+          )
         }
       />
     </Screen>

@@ -4,7 +4,8 @@ import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Avatar, Badge } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
-import { categories, type Business } from '@/data/mock';
+import type { Business } from '@/data/types';
+import { useDirectory } from '@/hooks/use-directory';
 import { useTheme } from '@/hooks/use-theme';
 
 function ActionButton({
@@ -38,6 +39,7 @@ function ActionButton({
 
 export function BusinessCard({ item }: { item: Business }) {
   const theme = useTheme();
+  const { categories } = useDirectory();
   const category = categories.find((c) => c.id === item.categoryId);
 
   // Поки що відкриваємо посилання напряму. На кроці 3 тут з'явиться підрахунок кліків.
@@ -62,7 +64,9 @@ export function BusinessCard({ item }: { item: Business }) {
             {item.description}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-            {category ? `${category.emoji} ${category.name}` : ''} · {item.city}
+            {[category && `${category.emoji} ${category.name}`, item.locality]
+              .filter(Boolean)
+              .join(' · ')}
           </ThemedText>
         </View>
       </View>

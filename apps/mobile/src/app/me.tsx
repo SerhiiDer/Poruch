@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
+import { CityPicker } from '@/components/city-picker';
 import { Icon, type IconName } from '@/components/icon';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
 import { Screen, SectionHeader } from '@/components/ui';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { useCity } from '@/hooks/use-city';
 import { useTheme } from '@/hooks/use-theme';
 
 // Поки що кнопки показують «Скоро». Справжні форми з'являться після підключення бази.
@@ -64,6 +66,8 @@ function Group({ children }: { children: React.ReactNode }) {
 export default function MeScreen() {
   const theme = useTheme();
   const [notify, setNotify] = useState(true);
+  const { city } = useCity();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <Screen>
@@ -131,6 +135,13 @@ export default function MeScreen() {
             <SectionHeader title="Налаштування" />
             <Group>
               <Row
+                icon="pin"
+                tint="#E5484D"
+                label="Місто"
+                value={city?.name}
+                onPress={() => setPickerOpen(true)}
+              />
+              <Row
                 icon="globe"
                 tint="#6A3FD1"
                 label="Мова"
@@ -161,7 +172,7 @@ export default function MeScreen() {
               value="v0.1 демо"
               onPress={() =>
                 Alert.alert(
-                  'Українська громада Чикаго',
+                  'Поруч',
                   'Каталог українських бізнесів та івентів. Зараз це демо-версія з вигаданими даними.',
                 )
               }
@@ -170,6 +181,7 @@ export default function MeScreen() {
           </Group>
         </View>
       </ScrollView>
+      <CityPicker visible={pickerOpen} onClose={() => setPickerOpen(false)} />
     </Screen>
   );
 }

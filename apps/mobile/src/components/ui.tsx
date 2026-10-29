@@ -1,6 +1,13 @@
 // Дрібні спільні елементи інтерфейсу: пошук, чіпси, заголовки секцій, аватар, бейдж.
 
-import { Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
@@ -144,7 +151,68 @@ export function Badge({ label, tone = 'highlight' }: { label: string; tone?: 'hi
   );
 }
 
+/** «Завантажуємо…» або «Не вдалося завантажити» з кнопкою «Спробувати ще» */
+export function DataStatus({
+  loading,
+  error,
+  onRetry,
+}: {
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  const theme = useTheme();
+  if (error) {
+    return (
+      <View style={styles.status}>
+        <ThemedText style={styles.statusEmoji}>📡</ThemedText>
+        <ThemedText themeColor="textSecondary" style={styles.statusText}>
+          Не вдалося завантажити дані. Перевірте інтернет.
+        </ThemedText>
+        <Pressable
+          onPress={onRetry}
+          style={({ pressed }) => [
+            styles.retry,
+            { backgroundColor: theme.accent },
+            pressed && styles.pressed,
+          ]}>
+          <ThemedText type="smallBold" style={{ color: theme.accentText }}>
+            Спробувати ще
+          </ThemedText>
+        </Pressable>
+      </View>
+    );
+  }
+  if (loading) {
+    return (
+      <View style={styles.status}>
+        <ActivityIndicator color={theme.accent} />
+      </View>
+    );
+  }
+  return null;
+}
+
 export const styles = StyleSheet.create({
+  status: {
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingVertical: Spacing.five,
+    paddingHorizontal: Spacing.five,
+  },
+  statusEmoji: {
+    fontSize: 40,
+    lineHeight: 48,
+  },
+  statusText: {
+    textAlign: 'center',
+  },
+  retry: {
+    borderRadius: Radius.pill,
+    paddingVertical: Spacing.two + Spacing.one,
+    paddingHorizontal: Spacing.four,
+    marginTop: Spacing.two,
+  },
   screen: {
     flex: 1,
   },

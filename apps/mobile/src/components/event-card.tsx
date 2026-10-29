@@ -4,7 +4,7 @@ import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Badge } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
-import { eventTagLabels, type EventItem } from '@/data/mock';
+import { eventTagLabels, type EventItem } from '@/data/types';
 import { dateParts, formatTime } from '@/lib/dates';
 import { useTheme } from '@/hooks/use-theme';
 
