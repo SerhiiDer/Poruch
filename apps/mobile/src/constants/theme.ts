@@ -1,6 +1,6 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
+ * Кольори застосунку для світлої і темної теми.
+ * Основа: сапфірово-синій + соняшниково-жовтий на теплому світлому фоні.
  */
 
 import '@/global.css';
@@ -9,18 +9,34 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#14172B',
+    textSecondary: '#6B6F80',
+    background: '#F6F4EF',
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#ECE8DF',
+    border: '#E7E2D8',
+    accent: '#1F4FD1',
+    accentSoft: '#E3EAFF',
+    accentText: '#FFFFFF',
+    highlight: '#FFC83D',
+    highlightSoft: '#FFF4D6',
+    highlightText: '#3A2A00',
+    heroGradient: 'linear-gradient(135deg, #1F4FD1 0%, #3C7BFF 100%)',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#F2F3F7',
+    textSecondary: '#9A9FB2',
+    background: '#0D1020',
+    backgroundElement: '#171B2E',
+    backgroundSelected: '#22273D',
+    border: '#262B42',
+    accent: '#7FA2FF',
+    accentSoft: '#1E2A52',
+    accentText: '#0D1020',
+    highlight: '#FFC83D',
+    highlightSoft: '#3A3016',
+    highlightText: '#2A1E00',
+    heroGradient: 'linear-gradient(135deg, #1A3BA8 0%, #2F5FE0 100%)',
   },
 } as const;
 
@@ -59,6 +75,13 @@ export const Spacing = {
   four: 24,
   five: 32,
   six: 64,
+} as const;
+
+export const Radius = {
+  sm: 10,
+  md: 16,
+  lg: 22,
+  pill: 999,
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
